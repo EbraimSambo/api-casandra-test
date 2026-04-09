@@ -589,3 +589,111 @@ Testes com Cassandra real (via Docker) para validar:
 | `class-validator` | Validação de DTOs |
 | `class-transformer` | Serialização/deserialização de DTOs |
 | `@nestjs/mapped-types` | `PartialType` para `UpdateUserDto` |
+
+---
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Property 1: Email value object preserves valid input
+
+*For any* valid RFC 5322 email string, constructing `Email(str)` and reading `.value` should return the original string unchanged.
+
+**Validates: Requirements 6.2**
+
+---
+
+### Property 2: Email value object rejects invalid input
+
+*For any* string that does not conform to RFC 5322 email format, constructing `Email(str)` should throw a domain exception.
+
+**Validates: Requirements 6.1**
+
+---
+
+### Property 3: UserId generation produces unique UUID v4 values
+
+*For any* sequence of `UserId.generate()` calls, each resulting value should match the UUID v4 format and no two generated values should be equal.
+
+**Validates: Requirements 1.2, 6.3**
+
+---
+
+### Property 4: User creation invariant — createdAt equals updatedAt
+
+*For any* valid set of user creation inputs, the resulting `User` entity should have `createdAt` strictly equal to `updatedAt`.
+
+**Validates: Requirements 1.4, 6.4**
+
+---
+
+### Property 5: User update advances updatedAt
+
+*For any* existing `User` entity, calling `updateName()` or `updateEmail()` should result in `updatedAt` being greater than or equal to the previous `updatedAt` value.
+
+**Validates: Requirements 4.2, 6.5**
+
+---
+
+### Property 6: Partial update preserves unspecified fields
+
+*For any* existing user and any partial update DTO containing only a subset of fields, the fields not present in the DTO should remain identical to their pre-update values after the update is applied.
+
+**Validates: Requirements 4.3**
+
+---
+
+### Property 7: Mapper round-trip
+
+*For any* valid `User` entity, mapping it to a Cassandra persistence record via `UserCassandraMapper.toPersistence()` and then back via `toDomain()` should produce a `User` entity equivalent to the original.
+
+**Validates: Requirements 7.6**
+
+---
+
+### Property 8: Persistence round-trip by ID
+
+*For any* valid `User` saved via `UserRepository.save()`, calling `UserRepository.findById()` with the same `UserId` should return a `User` entity with all fields equivalent to the saved entity.
+
+**Validates: Requirements 7.1, 7.2**
+
+---
+
+### Property 9: Persistence round-trip by email
+
+*For any* valid `User` saved via `UserRepository.save()`, calling `UserRepository.findByEmail()` with the same `Email` should return a `User` entity with all fields equivalent to the saved entity.
+
+**Validates: Requirements 7.1, 7.4**
+
+---
+
+### Property 10: Password is never stored as plain text
+
+*For any* password string provided during user creation, the value stored in the repository should not equal the original plain text string, and should be verifiable as a valid bcrypt hash with cost factor >= 10.
+
+**Validates: Requirements 1.3, 8.2, 8.3**
+
+---
+
+### Property 11: passwordHash is never exposed in HTTP responses
+
+*For any* HTTP response returned by the System (create, find, list, update), the response body should not contain a `passwordHash` field.
+
+**Validates: Requirements 2.3, 3.3, 8.1**
+
+---
+
+### Property 12: Invalid creation inputs are rejected
+
+*For any* user creation DTO where `name` is empty/whitespace, `email` is not valid RFC 5322, or `password` has fewer than 8 characters, the System should return HTTP 400 and not persist any data.
+
+**Validates: Requirements 1.6, 1.7, 1.8**
+
+---
+
+### Property 13: Delete removes user from all lookups
+
+*For any* existing `User` that is deleted via `UserRepository.delete()`, subsequent calls to `findById()` and `findByEmail()` with that user's identifiers should both return `null`.
+
+**Validates: Requirements 5.1**
