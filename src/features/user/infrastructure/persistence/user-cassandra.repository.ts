@@ -5,7 +5,7 @@ import { IUserRepository, PageResult } from '../../domain/ports/outbound/user-re
 import { Email } from '../../domain/value-objects/email.vo';
 import { UserId } from '../../domain/value-objects/user-id.vo';
 import { UserCassandraMapper } from './mappers/user-cassandra.mapper';
-import { CASSANDRA_CLIENT } from 'src/features/shared/infrastructure/persistence/cassandra.provider';
+import { CASSANDRA_CLIENT } from 'src/shared/infrastructure/persistence/cassandra.provider';
 
 @Injectable()
 export class UserCassandraRepository implements IUserRepository {
