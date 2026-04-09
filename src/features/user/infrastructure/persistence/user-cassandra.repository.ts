@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Client } from 'cassandra-driver';
-import { User } from '../../../domain/entities/user.entity';
-import { IUserRepository, PageResult } from '../../../domain/ports/outbound/user-repository.port';
-import { Email } from '../../../domain/value-objects/email.vo';
-import { UserId } from '../../../domain/value-objects/user-id.vo';
-import { UserCassandraMapper } from '../mappers/user-cassandra.mapper';
-import { CASSANDRA_CLIENT } from './cassandra.provider';
+import { User } from '../../domain/entities/user.entity';
+import { IUserRepository, PageResult } from '../../domain/ports/outbound/user-repository.port';
+import { Email } from '../../domain/value-objects/email.vo';
+import { UserId } from '../../domain/value-objects/user-id.vo';
+import { UserCassandraMapper } from './mappers/user-cassandra.mapper';
+import { CASSANDRA_CLIENT } from 'src/features/shared/infrastructure/persistence/cassandra.provider';
 
 @Injectable()
 export class UserCassandraRepository implements IUserRepository {

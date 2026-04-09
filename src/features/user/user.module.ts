@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { CassandraModule } from './infrastructure/persistence/cassandra/cassandra.module';
+import { CassandraModule } from '../shared/infrastructure/persistence/cassandra.module';
 import { UserController } from './infrastructure/http/user.controller';
-import { UserCassandraRepository } from './infrastructure/persistence/cassandra/user-cassandra.repository';
+import { UserCassandraRepository } from './infrastructure/persistence/user-cassandra.repository';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case';
 import { FindUserUseCase } from './application/use-cases/find-user.use-case';
 import { ListUsersUseCase } from './application/use-cases/list-users.use-case';
