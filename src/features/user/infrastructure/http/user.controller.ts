@@ -13,6 +13,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { Public } from 'src/features/auth/infrastructure/decorators/public.decorator';
 import {
   CREATE_USER_USE_CASE,
   DELETE_USER_USE_CASE,
@@ -54,6 +55,7 @@ export class UserController {
   ) {}
 
   @Post()
+  @Public()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
     try {
