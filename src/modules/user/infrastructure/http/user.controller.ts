@@ -11,6 +11,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   CREATE_USER_USE_CASE,
@@ -31,6 +32,11 @@ import { UserNotFoundException } from '../../domain/exceptions/user-not-found.ex
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+
+interface PaginatedResponse {
+  data: UserResponseDto[];
+  nextPageState: string | null;
+}
 
 @Controller('users')
 export class UserController {
@@ -62,9 +68,16 @@ export class UserController {
   }
 
   @Get()
-  async findAll(): Promise<UserResponseDto[]> {
-    const users = await this.listUsersUseCase.execute();
-    return users.map(UserResponseDto.fromDomain);
+  async findAll(
+    @Query('pageSize') pageSize = '20',
+    @Query('pageState') pageState?: string,
+  ): Promise<PaginatedResponse> {
+    const size = Math.min(Math.max(parseInt(pageSize, 10) || 20, 1), 100);
+    const result = await this.listUsersUseCase.execute(size, pageState);
+    return {
+      data: result.data.map(UserResponseDto.fromDomain),
+      nextPageState: result.nextPageState,
+    };
   }
 
   @Get(':id')

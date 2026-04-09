@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IListUsersUseCase } from '../../domain/ports/inbound/user-use-cases.port';
-import type { IUserRepository } from '../../domain/ports/outbound/user-repository.port';
+import type { IUserRepository, PageResult } from '../../domain/ports/outbound/user-repository.port';
 import { USER_REPOSITORY } from '../../domain/tokens';
 import { User } from '../../domain/entities/user.entity';
 
@@ -11,7 +11,7 @@ export class ListUsersUseCase implements IListUsersUseCase {
     private readonly repository: IUserRepository,
   ) {}
 
-  async execute(): Promise<User[]> {
-    return this.repository.findAll();
+  async execute(pageSize: number, pageState?: string): Promise<PageResult<User>> {
+    return this.repository.findAll(pageSize, pageState);
   }
 }

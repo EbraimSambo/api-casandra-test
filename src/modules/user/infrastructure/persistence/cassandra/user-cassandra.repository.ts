@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Client } from 'cassandra-driver';
 import { User } from '../../../domain/entities/user.entity';
-import { IUserRepository } from '../../../domain/ports/outbound/user-repository.port';
+import { IUserRepository, PageResult } from '../../../domain/ports/outbound/user-repository.port';
 import { Email } from '../../../domain/value-objects/email.vo';
 import { UserId } from '../../../domain/value-objects/user-id.vo';
 import { UserCassandraMapper } from '../mappers/user-cassandra.mapper';
@@ -61,10 +61,18 @@ export class UserCassandraRepository implements IUserRepository {
     return UserCassandraMapper.toDomain(userResult.first());
   }
 
-  async findAll(): Promise<User[]> {
-    const result = await this.client.execute(`SELECT * FROM app.users`, [], { prepare: true });
+  async findAll(pageSize: number, pageState?: string): Promise<PageResult<User>> {
+    const options: Record<string, unknown> = { prepare: true, fetchSize: pageSize };
+    if (pageState) {
+      options.pageState = pageState;
+    }
 
-    return result.rows.map((row) => UserCassandraMapper.toDomain(row));
+    const result = await this.client.execute(`SELECT * FROM app.users`, [], options);
+
+    return {
+      data: result.rows.map((row) => UserCassandraMapper.toDomain(row)),
+      nextPageState: result.pageState ? result.pageState.toString() : null,
+    };
   }
 
   async update(user: User): Promise<void> {
